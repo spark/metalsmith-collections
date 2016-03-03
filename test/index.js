@@ -405,6 +405,28 @@ describe('metalsmith-collections', function(){
       });
   });
 
+  it('should not order dynamic collections if order given is invalid', function (done) {
+    var metalsmith = Metalsmith('test/fixtures/dynamic-order-invalid');
+    metalsmith
+      .use(collections({
+        countries: {
+          pattern: ':country/*.md',
+          orderDynamicCollections: [
+            'mexico',
+            'canada' // Iceland is in the src, but missing here
+          ]
+        }
+      }))
+      .build(function(err){
+        if (err) return done(err);
+        var m = metalsmith.metadata();
+        assert.equal('mexico', m.countries[0].country);
+        assert.equal('canada', m.countries[1].country);
+        assert.equal(2, m.countries.length);
+        done();
+      });
+  });
+
   it('should allow collections through metadata alone', function (done) {
     var metalsmith = Metalsmith('test/fixtures/noconfig');
     metalsmith
